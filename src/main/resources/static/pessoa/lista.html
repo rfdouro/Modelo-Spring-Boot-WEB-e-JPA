@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+ <head>
+  <title>TODO supply a title</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="../libs/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+  <script src="../libs/vue/vue.js" type="text/javascript"></script>
+ </head>
+ <body>
+  <div id="app">
+   <h1>Cadastro de Pessoas</h1>
+   <form>
+    <fieldset>
+     <legend>Dados</legend>
+     <input type="hidden" v-model="pessoa.id"/>
+     <label>Nome:</label><input type="text" v-model="pessoa.nome">
+     <button v-on:click.prevent="salva()">Salvar</button>
+    </fieldset>
+   </form>
+   <table>
+    <thead>
+     <tr>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>Alterar</th>
+      <th>Excluir</th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr v-for="p in pessoas">
+      <td>{{p.id}}</td>
+      <td>{{p.nome}}</td>
+      <td><button v-on:click.stop="abreAltera(p.id)">O</button></td>
+      <td><button v-on:click.stop="exclui(p.id)">X</button></td>
+     </tr>
+    </tbody>
+   </table>
+   
+  </div>
+  <script>
+   var apiV = new Vue({
+    el: "#app",
+    data: {
+     pessoa: {
+      id: -1,
+      nome: '',
+      idade: 0
+     },
+     pessoas: []
+    },
+    methods: {
+     listaPessoas: function () {
+      $.get("/ws/pessoa", function (data, status) {
+       apiV.pessoas = data;
+      });
+     },
+     abreAltera: function (id) {
+      $.get("/ws/pessoa/" + id, function (data, status) {
+       apiV.pessoa = data;
+      });
+     },
+     salva: function () {
+      if (this.pessoa.id < 0) {
+       $.ajax({
+        url: '/ws/pessoa',
+        type: 'POST',
+        data: this.pessoa,
+        complete: function () {
+         apiV.listaPessoas();
+         apiV.pessoa = {
+          id: -1,
+          nome: ''
+         };
+        },
+        success: function (data) {
+         alert(data);
+        }
+       });
+      } else {
+       $.ajax({
+        url: '/ws/pessoa',
+        type: 'PUT',
+        data: this.pessoa,
+        complete: function () {
+         apiV.listaPessoas();
+         apiV.pessoa = {
+          id: -1,
+          nome: ''
+         };
+        },
+        success: function (data) {
+         alert(data);
+        }
+       });
+      }
+     },
+     exclui: function (id) {
+      $.ajax({
+       url: '/ws/pessoa/' + id,
+       type: 'DELETE',
+       success: function (data) {
+        alert(data);
+        apiV.listaPessoas();
+       }
+      });
+     }
+    }
+   });
+
+   apiV.listaPessoas();
+  </script>
+ </body>
+</html>
