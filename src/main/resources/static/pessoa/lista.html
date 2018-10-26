@@ -41,7 +41,7 @@ and open the template in the editor.
      </tr>
     </tbody>
    </table>
-   
+
   </div>
   <script>
    var apiV = new Vue({
@@ -56,13 +56,37 @@ and open the template in the editor.
     },
     methods: {
      listaPessoas: function () {
-      $.get("/ws/pessoa", function (data, status) {
+      /*$.get("/ws/pessoa", function (data, status) {
        apiV.pessoas = data;
+       });*/
+      var auth = sessionStorage.getItem('Authorization');
+      $.ajax({
+       url: "/ws/pessoa",
+       beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', auth);
+       },
+       async: false,
+       type: "GET",
+       success: function (data, status) {
+        apiV.pessoas = data;
+       }
       });
      },
      abreAltera: function (id) {
-      $.get("/ws/pessoa/" + id, function (data, status) {
+      /*$.get("/ws/pessoa/" + id, function (data, status) {
        apiV.pessoa = data;
+       });*/
+      var auth = sessionStorage.getItem('Authorization');
+      $.ajax({
+       url: "/ws/pessoa/" + id,
+       beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', auth);
+       },
+       async: false,
+       type: "GET",
+       success: function (data, status) {
+        apiV.pessoa = data;
+       }
       });
      },
      salva: function () {
@@ -71,6 +95,9 @@ and open the template in the editor.
         url: '/ws/pessoa',
         type: 'POST',
         data: this.pessoa,
+        beforeSend: function (xhr) {
+         xhr.setRequestHeader('Authorization', sessionStorage.getItem('Authorization'));
+        },
         complete: function () {
          apiV.listaPessoas();
          apiV.pessoa = {
@@ -87,6 +114,9 @@ and open the template in the editor.
         url: '/ws/pessoa',
         type: 'PUT',
         data: this.pessoa,
+        beforeSend: function (xhr) {
+         xhr.setRequestHeader('Authorization', sessionStorage.getItem('Authorization'));
+        },
         complete: function () {
          apiV.listaPessoas();
          apiV.pessoa = {
@@ -104,6 +134,9 @@ and open the template in the editor.
       $.ajax({
        url: '/ws/pessoa/' + id,
        type: 'DELETE',
+       beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', sessionStorage.getItem('Authorization'));
+       },
        success: function (data) {
         alert(data);
         apiV.listaPessoas();

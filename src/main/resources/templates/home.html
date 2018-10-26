@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>Getting Started: Serving Web Content</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <script src="libs/jquery/jquery-3.1.1.min.js" type="text/javascript"></script>
+  <script src="libs/vue/vue.js" type="text/javascript"></script>
+ </head>
+ <body>
+
+  <div id="appLogin">
+   <form v-on:submit.prevent="logar" method="post">
+    <fieldset>
+     <legend>Logar</legend>
+     <input type="text" v-model="username"/>
+     <input type="text" v-model="password"/>
+     <input type="submit" value="Logare"/>
+    </fieldset>
+   </form>
+  </div>
+
+  <p>Get your greeting <a href="/ola">here</a></p>
+  <p>Get your greeting <a href="/pessoa/lista.html">here</a></p>
+
+  <script>
+   var vLogin = new Vue({
+    el: '#appLogin',
+    data: {
+     username: '',
+     password: ''
+    },
+    methods: {
+     logar: function () {
+      var dados = {username: vLogin.username, password: vLogin.password};
+      $.ajax({
+       type: "POST",
+       //the url where you want to sent the userName and password to
+       url: 'login',
+       contentType: "application/json",
+       //json object to sent to the authentication url
+       data: JSON.stringify(dados),
+       beforeSend: function (xhr) {   //Include the bearer token in header
+        //xhr.setRequestHeader("Authorization", 'Bearer ' + jwt);
+       },
+       success: function (dt, status, request) {
+        //console.log(request.getAllResponseHeaders());
+        var auth = request.getResponseHeader('authorization').split(' ')[1];
+        sessionStorage.setItem('Authorization', auth);
+        alert('Logou ok')
+       },
+       error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.status);
+        alert(thrownError);
+       }
+      });
+
+      /*$.post('login', {username: this.username, password: this.password}, function (d) {
+       alert(d);
+       });*/
+     }
+    }
+   });
+  </script>
+ </body>
+</html>
